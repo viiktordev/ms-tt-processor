@@ -6,7 +6,17 @@ provider:
   name: aws
   runtime: nodejs12.x
   region: us-east-1
-
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:Query
+        - dynamodb:Scan
+      Resource:
+        Fn::GetAtt:
+          - tweetTable
+          - Arn
+          
 plugins:
   - serverless-plugin-typescript
   - serverless-offline
@@ -25,3 +35,20 @@ functions:
                 - Ref: AWS::Region
                 - Ref: AWS::AccountId
                 - sticker-request
+    
+
+resources:
+      Resources:
+        tweetTable:
+          Type: AWS::DynamoDB::Table
+          Properties:
+            TableName: Tweet
+            AttributeDefinitions:
+              - AttributeName: id
+                AttributeType: S
+            KeySchema:
+              - AttributeName: id
+                KeyType: HASH
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
